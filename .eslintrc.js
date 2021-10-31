@@ -37,5 +37,6 @@ module.exports = {
     'arrow-parens': [0, { requireForBlockBody: false }],
     'jsx-quotes': 'off',
     'react/jsx-one-expression-per-line': 'off',
+    '@typescript-eslint/indent': 'off', // There is a bug with generics in this version
   },
 };
