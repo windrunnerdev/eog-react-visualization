@@ -65,15 +65,70 @@ const initialState: VisualizationState = {
   metricInfo: {},
 };
 
-let addMeasurementDataPoints: ActionCreatorWithPayload<Measurement[], string>;
-let setSubscription: ActionCreatorWithPayload<ZenObservable.Subscription, string>;
-let setMetricUnit: ActionCreatorWithPayload<{ metric: string; unit: string }, string>;
-let setMetricState: ActionCreatorWithPayload<{ metric: string; newState: MetricState }, string>;
+// Create visualization slice
+export const visualizationSlice = createSlice({
+  name: 'visualization',
+  initialState,
+  reducers: {
+    addSelectedMetric: (state, action: PayloadAction<string>) => {
+      state.selectedMetrics.push(action.payload);
+      state.metricInfo[action.payload] = { state: MetricState.Added };
+    },
+    removeSelectedMetric: (state, action: PayloadAction<string>) => {
+      const idx = state.selectedMetrics.findIndex((metric) => metric === action.payload);
+      state.selectedMetrics.splice(idx, 1);
+      state.metricInfo[action.payload].state = MetricState.Removed;
+    },
+    addMeasurementDataPoints: (state, action: PayloadAction<Measurement[]>) => {
+      action.payload.forEach((m) => {
+        const idx = state.dataPoints.findIndex((dp) => dp.date === m.at);
+        if (idx !== -1) {
+          state.dataPoints[idx][m.metric] = m.value;
+        } else {
+          state.dataPoints.push({
+            date: m.at,
+            [m.metric]: m.value,
+          });
+        }
+      });
+
+      state.dataPoints.sort((a, b) => a.date - b.date);
+    },
+    setSubscription: (state, action: PayloadAction<ZenObservable.Subscription>) => {
+      state.subscription = action.payload;
+    },
+    removeNewMeasurementsSubscription: (state) => {
+      state.subscription?.unsubscribe();
+    },
+    setMetricState: (state, action: PayloadAction<{ metric: string; newState: MetricState }>) => {
+      const { metric, newState } = action.payload;
+      state.metricInfo[metric].state = newState;
+    },
+    setMetricUnit: (state, action: PayloadAction<{ metric: string; unit: string }>) => {
+      state.metricInfo[action.payload.metric].unit = action.payload.unit;
+    },
+    setMetrics: (state, action: PayloadAction<string[]>) => {
+      state.metrics = action.payload;
+    },
+  },
+});
+
+// Slice actions
+export const {
+  addSelectedMetric,
+  removeSelectedMetric,
+  removeNewMeasurementsSubscription,
+  addMeasurementDataPoints,
+  setSubscription,
+  setMetricUnit,
+  setMetricState,
+  setMetrics,
+} = visualizationSlice.actions;
 
 /**
- * Get metrics thunk action
+ * Visualization thunk actions
  */
-export const getMetricsAsync = createAsyncThunk<VisualizationState['metrics']>('visualization/getMetrics', async () => {
+export const getMetricsAsync = createAsyncThunk('visualization/getMetrics', async (_, { dispatch }) => {
   const query = gql`
     query {
       getMetrics
@@ -81,7 +136,7 @@ export const getMetricsAsync = createAsyncThunk<VisualizationState['metrics']>('
   `;
 
   const { data } = await GqlClient.query<GetMetricsResponse>({ query });
-  return data.getMetrics;
+  dispatch(setMetrics(data.getMetrics));
 });
 
 export const getMeasurementsAsync = createAsyncThunk(
@@ -138,70 +193,11 @@ export const getNewMeasurementsAsync = createAsyncThunk(
   },
 );
 
-export const visualizationSlice = createSlice({
-  name: 'visualization',
-  initialState,
-  reducers: {
-    addSelectedMetric: (state, action: PayloadAction<string>) => {
-      state.selectedMetrics.push(action.payload);
-      state.metricInfo[action.payload] = { state: MetricState.Added };
-    },
-    removeSelectedMetric: (state, action: PayloadAction<string>) => {
-      const idx = state.selectedMetrics.findIndex((metric) => metric === action.payload);
-      state.selectedMetrics.splice(idx, 1);
-      state.metricInfo[action.payload].state = MetricState.Removed;
-    },
-    addMeasurementDataPoints: (state, action: PayloadAction<Measurement[]>) => {
-      action.payload.forEach((m) => {
-        const idx = state.dataPoints.findIndex((dp) => dp.date === m.at);
-        if (idx !== -1) {
-          state.dataPoints[idx][m.metric] = m.value;
-        } else {
-          state.dataPoints.push({
-            date: m.at,
-            [m.metric]: m.value,
-          });
-        }
-      });
-
-      state.dataPoints.sort((a, b) => a.date - b.date);
-    },
-    setSubscription: (state, action: PayloadAction<ZenObservable.Subscription>) => {
-      state.subscription = action.payload;
-    },
-    removeNewMeasurementsSubscription: (state) => {
-      state.subscription?.unsubscribe();
-    },
-    setMetricState: (state, action: PayloadAction<{ metric: string; newState: MetricState }>) => {
-      const { metric, newState } = action.payload;
-      state.metricInfo[metric].state = newState;
-    },
-    setMetricUnit: (state, action: PayloadAction<{ metric: string; unit: string }>) => {
-      state.metricInfo[action.payload.metric].unit = action.payload.unit;
-    },
-  },
-  extraReducers: (builder) => {
-    builder.addCase(getMetricsAsync.fulfilled, (state, action) => {
-      if (state.metrics.length === 0) {
-        state.metrics = action.payload;
-      }
-    });
-  },
-});
-
-addMeasurementDataPoints = visualizationSlice.actions.addMeasurementDataPoints;
-setSubscription = visualizationSlice.actions.setSubscription;
-setMetricUnit = visualizationSlice.actions.setMetricUnit;
-setMetricState = visualizationSlice.actions.setMetricState;
-
-export const { addSelectedMetric, removeSelectedMetric, removeNewMeasurementsSubscription } =
-  visualizationSlice.actions;
-
+// Selectors
 export const selectMetrics = (state: RootState) => state.visualization.metrics;
 export const selectSelectedMetrics = (state: RootState) => state.visualization.selectedMetrics;
 export const selectMetricsInfo = (state: RootState) => state.visualization.metricInfo;
 export const selectDataPoints = (state: RootState) => state.visualization.dataPoints;
 
+// Visualization reducer
 export const visualizationReducer = visualizationSlice.reducer;
-
-export { setMetricUnit, setMetricState };
