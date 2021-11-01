@@ -38,5 +38,9 @@ module.exports = {
     'jsx-quotes': 'off',
     'react/jsx-one-expression-per-line': 'off',
     '@typescript-eslint/indent': 'off', // There is a bug with generics in this version
+    'import/extensions': 'off',
+    'import/no-extraneous-dependencies': 'off',
+    'max-len': ['error', { code: 120 }],
+    'import/no-cycle': 'off',
   },
 };
