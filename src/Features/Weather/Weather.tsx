@@ -1,6 +1,5 @@
 import { ApolloProvider, gql, useQuery } from '@apollo/client';
-import { Typography } from '@material-ui/core';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import { Typography, LinearProgress } from '@mui/material';
 import React, { FC } from 'react';
 import { useGeolocation } from 'react-use';
 import { GqlClient } from '../../app/gql-client';
