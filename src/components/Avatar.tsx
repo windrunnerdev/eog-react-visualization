@@ -1,5 +1,5 @@
-import Avatar from '@material-ui/core/Avatar';
-import { withStyles, Theme } from '@material-ui/core/styles';
+import { Avatar, Theme } from '@mui/material';
+import { withStyles } from '@mui/styles';
 
 const styles = (theme: Theme) => ({
   root: {
