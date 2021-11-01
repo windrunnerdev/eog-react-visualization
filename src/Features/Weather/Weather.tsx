@@ -1,5 +1,6 @@
 import { ApolloProvider, gql, useQuery } from '@apollo/client';
 import { Typography, LinearProgress } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import React, { FC } from 'react';
 import { useGeolocation } from 'react-use';
 import { GqlClient } from '../../app/gql-client';
@@ -26,7 +27,16 @@ type WeatherDataResponse = {
   getWeatherForLocation: WeatherData;
 };
 
+const useStyles = makeStyles({
+  chip: {
+    '& > span': {
+      color: '#fff !important',
+    },
+  },
+});
+
 const Weather: FC = () => {
+  const styles = useStyles();
   const getLocation = useGeolocation();
   // Default to houston
   const latLong = {
@@ -41,10 +51,15 @@ const Weather: FC = () => {
 
   if (loading) return <LinearProgress />;
   if (error) return <Typography color="error">{error}</Typography>;
-  if (!data) return <Chip label="Weather not found" />;
+  if (!data) return <Chip className={styles.chip} label="Weather not found" />;
   const { locationName, description, temperatureinCelsius } = data.getWeatherForLocation;
 
-  return <Chip label={`Weather in ${locationName}: ${description} and ${Math.round(toF(temperatureinCelsius))}°`} />;
+  return (
+    <Chip
+      className={styles.chip}
+      label={`Weather in ${locationName}: ${description} and ${Math.round(toF(temperatureinCelsius))}°`}
+    />
+  );
 };
 
 export default () => (
