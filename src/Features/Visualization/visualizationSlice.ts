@@ -1,4 +1,4 @@
-import { ActionCreatorWithPayload, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import gql from 'graphql-tag';
 import { GqlClient } from '../../app/gql-client';
 import { RootState } from '../../app/store';

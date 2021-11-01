@@ -1,9 +1,9 @@
-import React, { FC, SyntheticEvent } from 'react';
+import React, { FC, SyntheticEvent, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@mui/styles';
 import { Autocomplete, AutocompleteChangeDetails, AutocompleteChangeReason, TextField } from '@mui/material';
 import { useAppSelector } from '../../app/hooks';
-import { removeSelectedMetric, selectMetrics, addSelectedMetric } from './visualizationSlice';
+import { removeSelectedMetric, selectMetrics, addSelectedMetric, getMetricsAsync } from './visualizationSlice';
 
 const useStyles = makeStyles({
   container: {
@@ -16,12 +16,18 @@ export const Metrics: FC = () => {
   const metrics = useAppSelector(selectMetrics);
   const dispatch = useDispatch();
 
+  // dispatch action for getting metrics from API
+  useEffect(() => {
+    dispatch(getMetricsAsync());
+  }, []);
+
   const handleOnChange = (
     event: SyntheticEvent,
     value: string[],
     reason: AutocompleteChangeReason,
     details?: AutocompleteChangeDetails<string>,
   ) => {
+    // dispatch actions based on event reason
     if (reason === 'selectOption') {
       dispatch(addSelectedMetric(details!.option));
     } else if (reason === 'removeOption') {
