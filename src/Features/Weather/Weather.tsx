@@ -1,20 +1,10 @@
-import React, { FC } from 'react';
-import {
-  ApolloClient,
-  ApolloProvider,
-  useQuery,
-  gql,
-  InMemoryCache,
-} from '@apollo/client';
-import { useGeolocation } from 'react-use';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import { ApolloProvider, gql, useQuery } from '@apollo/client';
 import { Typography } from '@material-ui/core';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import React, { FC } from 'react';
+import { useGeolocation } from 'react-use';
+import { GqlClient } from '../../app/gql-client';
 import Chip from '../../components/Chip';
-
-const client = new ApolloClient({
-  uri: 'https://react.eogresources.com/graphql',
-  cache: new InMemoryCache(),
-});
 
 const toF = (c: number) => (c * 9) / 5 + 32;
 
@@ -59,7 +49,7 @@ const Weather: FC = () => {
 };
 
 export default () => (
-  <ApolloProvider client={client}>
+  <ApolloProvider client={GqlClient}>
     <Weather />
   </ApolloProvider>
 );
