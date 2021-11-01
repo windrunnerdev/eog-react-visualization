@@ -33,6 +33,7 @@ module.exports = {
     'react/jsx-props-no-spreading': 'off',
     'react/require-default-props': 'off',
     'import/no-unresolved': 'off',
+    'object-curly-newline': 'off',
     'import/prefer-default-export': 'off',
     'no-param-reassign': 'off',
     'arrow-parens': [0, { requireForBlockBody: false }],
@@ -43,5 +44,7 @@ module.exports = {
     'import/no-extraneous-dependencies': 'off',
     'max-len': ['error', { code: 120 }],
     'import/no-cycle': 'off',
+    'operator-linebreak': 'off',
+    'import/no-mutable-exports': 'off',
   },
 };
